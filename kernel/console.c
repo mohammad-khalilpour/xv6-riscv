@@ -21,9 +21,14 @@
 #include "riscv.h"
 #include "defs.h"
 #include "proc.h"
+#include "histBuff.h"
 
 #define BACKSPACE 0x100
 #define C(x)  ((x)-'@')  // Control-x
+#define MAX_HISTORY 16
+#define INPUT_BUF_SIZE 128
+
+struct historyBufferArray histBuff;
 
 //
 // send one character to the uart.
@@ -45,7 +50,6 @@ struct {
   struct spinlock lock;
   
   // input
-#define INPUT_BUF_SIZE 128
   char buf[INPUT_BUF_SIZE];
   uint r;  // Read index
   uint w;  // Write index
@@ -132,6 +136,9 @@ consoleread(int user_dst, uint64 dst, int n)
 // do erase/kill processing, append to cons.buf,
 // wake up consoleread() if a whole line has arrived.
 //
+uint64 commandSize;
+void saveCommandToHistory();
+
 void
 consoleintr(int c)
 {
@@ -153,6 +160,7 @@ consoleintr(int c)
     if(cons.e != cons.w){
       cons.e--;
       consputc(BACKSPACE);
+      commandSize --;
     }
     break;
   default:
@@ -164,10 +172,13 @@ consoleintr(int c)
 
       // store for consumption by consoleread().
       cons.buf[cons.e++ % INPUT_BUF_SIZE] = c;
+      histBuff.currentCommand[commandSize] = c;
+      commandSize++;
 
       if(c == '\n' || c == C('D') || cons.e-cons.r == INPUT_BUF_SIZE){
         // wake up consoleread() if a whole line (or end-of-file)
         // has arrived.
+        saveCommandToHistory();
         cons.w = cons.e;
         wakeup(&cons.r);
       }
@@ -189,4 +200,31 @@ consoleinit(void)
   // to consoleread and consolewrite.
   devsw[CONSOLE].read = consoleread;
   devsw[CONSOLE].write = consolewrite;
+}
+
+void
+saveCommandToHistory() {
+    commandSize--;
+    int isHistoryCommand = 1;
+    char hist[8] = {'h','i','s','t','o','r','y','\0'};
+    for(int i=0;i<7;i++) {
+        if (histBuff.currentCommand[i] != hist[i]) {
+            isHistoryCommand = 0;
+            break;
+        }
+    }
+
+    if (!isHistoryCommand) {
+        for (int i = 0; i < commandSize; i++) {
+            histBuff.bufferArr[histBuff.lastCommandIndex][i] = histBuff.currentCommand[i];
+        }
+        histBuff.lengthArr[histBuff.lastCommandIndex] = commandSize;
+        histBuff.lastCommandIndex++;
+        histBuff.numOfCommandsInMem++;
+        if (histBuff.lastCommandIndex == 16)
+            histBuff.lastCommandIndex = 0;
+        if(histBuff.numOfCommandsInMem > 16)
+            histBuff.numOfCommandsInMem = 16;
+    }
+    commandSize = 0;
 }
