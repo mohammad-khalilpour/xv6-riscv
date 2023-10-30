@@ -94,5 +94,9 @@ sys_uptime(void)
 uint64
 sys_history(void)
 {
+    int hist_num;
+    argint(0, &hist_num);
+    history(hist_num);
+
     return 0;
 }

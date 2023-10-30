@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "histBuff.h"
 
 struct cpu cpus[NCPU];
 
@@ -680,4 +681,21 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+#define MAX_HISTORY 16
+#define INPUT_BUF_SIZE 128
+
+
+void
+history(int hist_num)
+{
+    int temp = (histBuff.lastCommandIndex - hist_num) % 16;
+    if (temp - 1 > histBuff.numOfCommandsInMem)
+        printf("There in not that much history :(\n");
+    else {
+        for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
+            consputc(histBuff.bufferArr[temp][i]);
+        }
+        printf("\n");
+    }
 }

@@ -1,4 +1,5 @@
 struct stat;
+struct historyBufferArray;
 
 // system calls
 int fork(void);
@@ -22,7 +23,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int history(void);
+int history(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
