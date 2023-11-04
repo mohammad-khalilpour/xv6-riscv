@@ -1,6 +1,6 @@
 #include "param.h"
 
-enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum procstate;
 
 struct proc_info {
     char name[16];
