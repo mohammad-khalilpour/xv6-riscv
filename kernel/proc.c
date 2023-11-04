@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "defs.h"
 #include "histBuff.h"
+#include "top.h"
 
 struct cpu cpus[NCPU];
 
@@ -697,5 +698,67 @@ history(int hist_num)
             consputc(histBuff.bufferArr[temp][i]);
         }
         printf("\n");
+    }
+}
+
+void
+top(void)
+{
+
+    struct proc *p;
+    int i = 0;
+    struct top t;
+
+    static char *states[] = {
+            [UNUSED]    "unused",
+            [USED]      "used",
+            [SLEEPING]  "sleep ",
+            [RUNNABLE]  "runble",
+            [RUNNING]   "run   ",
+            [ZOMBIE]    "zombie"
+    };
+
+    char *state;
+
+    t.total_process = 0;
+    t.running_process = 0;
+    t.sleeping_process = 0;
+
+    for(p = proc; p < &proc[NPROC]; p++){
+        if (p->state == UNUSED) {
+            printf("%d\n", i);
+            break;
+        }
+        for(int j=0;j<16;j++) {
+            t.p_list[i].name[j] = p->name[j];
+            if (p->name[j] == '\0')
+                break;
+        }
+        t.p_list[i].pid = p->pid;
+        t.p_list[i].ppid = p->parent->pid;
+        t.p_list[i].state = p->state;
+
+
+
+        t.total_process++;
+        if (p->state == RUNNING)
+            t.running_process++;
+        else if (p->state == SLEEPING)
+            t.sleeping_process++;
+        i++;
+    }
+    printf("total process:%d\n", t.total_process);
+    printf("running process:%d\n", t.running_process);
+    printf("sleeping process:%d\n", t.sleeping_process);
+    printf("name    PID     PPID    state\n");
+    for(i=0;i<t.total_process;i++) {
+        for(int j=0;j<16;j++) {
+            if (t.p_list[i].name[j] == '\0')
+                break;
+            consputc(t.p_list[i].name[j]);
+        }
+        printf("    %d    %d    ", t.p_list[i].pid, t.p_list[i].state);
+        state = states[t.p_list[i].state];
+        printf("%s\n", state);
     }
 }
