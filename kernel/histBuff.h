@@ -8,6 +8,7 @@ struct historyBufferArray{
     uint lengthArr[MAX_HISTORY];
     uint lastCommandIndex;
     int numOfCommandsInMem;
+    int arrowKeyIndex;
 };
 
 extern struct historyBufferArray histBuff;

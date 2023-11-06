@@ -164,7 +164,38 @@ consoleintr(int c)
     }
     break;
   default:
-    if(c != 0 && cons.e-cons.r < INPUT_BUF_SIZE){
+    if(c == '\x41'){
+      histBuff.arrowKeyIndex++;
+      while (cons.e > 0) {
+          consputc(BACKSPACE);
+          cons.e--;
+      }
+      cons.r = 0;
+      int temp = (histBuff.lastCommandIndex - histBuff.arrowKeyIndex) % histBuff.numOfCommandsInMem;
+      commandSize = 0;
+      for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
+          consputc(histBuff.bufferArr[temp][i]);
+          cons.buf[cons.e++ % INPUT_BUF_SIZE] = histBuff.bufferArr[temp][i];
+          histBuff.currentCommand[commandSize++] = histBuff.bufferArr[temp][i];
+      }
+      commandSize = histBuff.lengthArr[temp];
+    }
+    else if (c == '\x42') {
+      histBuff.arrowKeyIndex--;
+        while (cons.e > 0) {
+            consputc(BACKSPACE);
+            cons.e--;
+        }
+      cons.r = 0;
+      int temp = (histBuff.lastCommandIndex - histBuff.arrowKeyIndex) % histBuff.numOfCommandsInMem;
+      commandSize = 0;
+      for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
+          consputc(histBuff.bufferArr[temp][i]);
+          cons.buf[cons.e++ % INPUT_BUF_SIZE] = histBuff.bufferArr[temp][i];
+          histBuff.currentCommand[commandSize++] = histBuff.bufferArr[temp][i];
+      }
+    }
+    else if(c != 0 && cons.e-cons.r < INPUT_BUF_SIZE){
       c = (c == '\r') ? '\n' : c;
 
       // echo back to the user.
