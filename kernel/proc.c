@@ -734,7 +734,11 @@ top(uint uptime)
                 break;
         }
         t.p_list[i].pid = p->pid;
-        t.p_list[i].ppid = p->parent->pid;
+        if (p->parent != 0) {
+            t.p_list[i].ppid = p->parent->pid;
+        } else {
+            t.p_list[i].ppid = 0;
+        }
         t.p_list[i].state = p->state;
 
 
@@ -757,7 +761,7 @@ top(uint uptime)
                 break;
             consputc(t.p_list[i].name[j]);
         }
-        printf("    %d    %d    ", t.p_list[i].pid, t.p_list[i].state);
+        printf("    %d    %d    ", t.p_list[i].pid, t.p_list[i].ppid);
         state = states[t.p_list[i].state];
         printf("%s\n", state);
     }
