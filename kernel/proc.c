@@ -702,7 +702,7 @@ history(int hist_num)
 }
 
 void
-top(void)
+top(uint uptime)
 {
 
     struct proc *p;
@@ -726,8 +726,7 @@ top(void)
 
     for(p = proc; p < &proc[NPROC]; p++){
         if (p->state == UNUSED) {
-            printf("%d\n", i);
-            break;
+            continue;
         }
         for(int j=0;j<16;j++) {
             t.p_list[i].name[j] = p->name[j];
@@ -750,6 +749,7 @@ top(void)
     printf("total process:%d\n", t.total_process);
     printf("running process:%d\n", t.running_process);
     printf("sleeping process:%d\n", t.sleeping_process);
+    printf("uptime:%d clock ticks\n", uptime);
     printf("name    PID     PPID    state\n");
     for(i=0;i<t.total_process;i++) {
         for(int j=0;j<16;j++) {

@@ -104,7 +104,7 @@ sys_history(void)
 uint64
 sys_top(void)
 {
-    top();
+    top(sys_uptime());
 
     return 0;
 }
