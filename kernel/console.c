@@ -172,6 +172,8 @@ consoleintr(int c)
       }
       cons.r = 0;
       int temp = (histBuff.lastCommandIndex - histBuff.arrowKeyIndex) % histBuff.numOfCommandsInMem;
+      if (temp < 0)
+          temp += histBuff.numOfCommandsInMem;
       commandSize = 0;
       for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
           consputc(histBuff.bufferArr[temp][i]);

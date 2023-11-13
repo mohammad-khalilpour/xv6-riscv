@@ -691,6 +691,8 @@ void
 history(int hist_num)
 {
     int temp = (histBuff.lastCommandIndex - hist_num) % 16;
+    if (temp < 0)
+        temp += 16;
     if (temp - 1 > histBuff.numOfCommandsInMem)
         printf("There in not that much history :(\n");
     else {
