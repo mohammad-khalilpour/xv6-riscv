@@ -178,7 +178,6 @@ consoleintr(int c)
       for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
           consputc(histBuff.bufferArr[temp][i]);
           cons.buf[cons.e++ % INPUT_BUF_SIZE] = histBuff.bufferArr[temp][i];
-          histBuff.currentCommand[commandSize++] = histBuff.bufferArr[temp][i];
       }
       commandSize = histBuff.lengthArr[temp];
     }
@@ -194,7 +193,6 @@ consoleintr(int c)
       for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
           consputc(histBuff.bufferArr[temp][i]);
           cons.buf[cons.e++ % INPUT_BUF_SIZE] = histBuff.bufferArr[temp][i];
-          histBuff.currentCommand[commandSize++] = histBuff.bufferArr[temp][i];
       }
     }
     else if(c != 0 && cons.e-cons.r < INPUT_BUF_SIZE){
@@ -205,7 +203,6 @@ consoleintr(int c)
 
       // store for consumption by consoleread().
       cons.buf[cons.e++ % INPUT_BUF_SIZE] = c;
-      histBuff.currentCommand[commandSize] = c;
       commandSize++;
 
       if(c == '\n' || c == C('D') || cons.e-cons.r == INPUT_BUF_SIZE){
@@ -241,7 +238,7 @@ saveCommandToHistory() {
     int isHistoryCommand = 1;
     char hist[8] = {'h','i','s','t','o','r','y','\0'};
     for(int i=0;i<7;i++) {
-        if (histBuff.currentCommand[i] != hist[i]) {
+        if (cons.buf[cons.r + i] != hist[i]) {
             isHistoryCommand = 0;
             break;
         }
@@ -249,7 +246,7 @@ saveCommandToHistory() {
 
     if (!isHistoryCommand) {
         for (int i = 0; i < commandSize; i++) {
-            histBuff.bufferArr[histBuff.lastCommandIndex][i] = histBuff.currentCommand[i];
+            histBuff.bufferArr[histBuff.lastCommandIndex][i] = cons.buf[cons.r + i];
         }
         histBuff.lengthArr[histBuff.lastCommandIndex] = commandSize;
         histBuff.lastCommandIndex++;

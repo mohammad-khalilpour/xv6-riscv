@@ -4,7 +4,6 @@
 
 struct historyBufferArray{
     char bufferArr[MAX_HISTORY][INPUT_BUF_SIZE];
-    char currentCommand[INPUT_BUF_SIZE];
     uint lengthArr[MAX_HISTORY];
     uint lastCommandIndex;
     int numOfCommandsInMem;

@@ -690,12 +690,19 @@ procdump(void)
 void
 history(int hist_num)
 {
+    for (int j=0;j<histBuff.numOfCommandsInMem;j++) {
+        for (int i = 0; i < histBuff.lengthArr[j]; i++) {
+            consputc(histBuff.bufferArr[j][i]);
+        }
+        printf("\n");
+    }
     int temp = (histBuff.lastCommandIndex - hist_num) % 16;
     if (temp < 0)
         temp += 16;
     if (temp - 1 > histBuff.numOfCommandsInMem)
         printf("There in not that much history :(\n");
     else {
+        printf("requested command: ");
         for (int i = 0; i < histBuff.lengthArr[temp]; i++) {
             consputc(histBuff.bufferArr[temp][i]);
         }
@@ -755,7 +762,7 @@ top(uint uptime)
     printf("total process:%d\n", t.total_process);
     printf("running process:%d\n", t.running_process);
     printf("sleeping process:%d\n", t.sleeping_process);
-    printf("uptime:%d clock ticks\n", uptime);
+    printf("uptime:%d seconds\n", uptime / 10);
     printf("name    PID     PPID    state\n");
     for(i=0;i<t.total_process;i++) {
         for(int j=0;j<16;j++) {
