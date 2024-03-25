@@ -16,6 +16,7 @@ sub entry {
 }
 	
 entry("fork");
+entry("priority_fork");
 entry("exit");
 entry("wait");
 entry("pipe");

@@ -279,7 +279,7 @@ growproc(int n)
 // Create a new process, copying the parent.
 // Sets up child kernel stack to return as if from fork() system call.
 int
-fork(void)
+fork(int priority)
 {
   int i, pid;
   struct proc *np;
@@ -322,6 +322,7 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
+  np->priority = priority;
   release(&np->lock);
 
   return pid;
@@ -450,26 +451,42 @@ scheduler(void)
   struct cpu *c = mycpu();
   
   c->proc = 0;
+  int priority_turn = 0;
+  int proc_found = 0;
+
+    static int quantum[] = {5, 10, 20};
+
+
   for(;;){
-    // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
+      if (p->priority == priority_turn && p->state == RUNNABLE) {
+          p->state = RUNNING;
+          c->proc = p;
 
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
+          int time_quantum = quantum[p->priority];
+          for (int i = 0; i < time_quantum; i++) {
+              swtch(&c->context, &p->context);
+              if (p->state != RUNNING) {
+                  break;
+              }
+          }
+
+          c->proc = 0;
+          proc_found = 1;
       }
       release(&p->lock);
     }
+      if (proc_found) {
+          proc_found = 0;
+          priority_turn = 0;
+      }
+      else {
+          priority_turn += 1;
+          priority_turn %= 3;
+      }
   }
 }
 

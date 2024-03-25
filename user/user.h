@@ -3,6 +3,7 @@ struct historyBufferArray;
 
 // system calls
 int fork(void);
+int priority_fork(int priority);
 int exit(int) __attribute__((noreturn));
 int wait(int*);
 int pipe(int*);

@@ -68,8 +68,6 @@ void uThreadSchedule() {
         uThreadSwitch(&nextThreadPointer->context, &currentThreadPointer->context);
 
 
-        // void (*functionPtr)(void) = (void (*)(void))nextThreadPointer->context.ra;
-        // functionPtr();
     } else {
         t = 0;
     }

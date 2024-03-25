@@ -24,7 +24,15 @@ sys_getpid(void)
 uint64
 sys_fork(void)
 {
-  return fork();
+  return fork(BASE_PRIORITY);
+}
+
+uint64
+sys_priority_fork(void)
+{
+    int priority;
+    argint(0, &priority);
+    return fork(priority);
 }
 
 uint64
